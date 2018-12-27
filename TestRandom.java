@@ -3,8 +3,9 @@
 * Fichier de test afin de voir un possible création de données en fonction de critère. 
 * On veut un aléatoir controlé (par exemple pour l'age on veut plus de jeune mais avec un age aléatoire).
 * Modification: Date/Initiales/Choses_modifiées
-* 26 Décembre 2018/MT/Création du fichier
-* A FAIRE:
+* 26 Décembre 2018/MT/Création du fichier création des fonctions: main, randomGene, trancheAge, ageMin, ageMax, randomSerie, randomFood
+* 27 Décembre 2018/MT/Modification de randomSerie (ajout du type de la série), ajout randomDuree
+* A FAIRE: Créer une fonction pour choisir une région aléatoire (es-ce vraiment nécessaire ?)
 */
 
 import java.util.Random;
@@ -14,17 +15,20 @@ public class TestRandom {
 
     public static void main(String[] args) {
     	int val;
-    	String bd[][] = new String[100][5];
+    	String bd[][] = new String[100][7];
     	for(int i = 0; i < bd.length; i++){
-    		val = TrancheAge(RandomGene(0, 100));
-    		bd[i][0] = String.valueOf(i);
-    		bd[i][1] = String.valueOf(RandomGene(AgeMin(val), AgeMax(val)));
-    		bd[i][2] = (RandomGene(0, 2) == 1) ? "F" : "M";
-    		bd[i][3] = RandomSerie();
-    		bd[i][4] = RandomFood();
+    		String[] str = randomSerie().split(",");
+    		val = trancheAge(randomGene(0, 100));
+    		bd[i][0] = str[1];													// Type de la série
+    		bd[i][1] = str[0];													// Nom de la série
+    		bd[i][2] = randomDuree();											// Durée de la série
+    		bd[i][3] = String.valueOf(i);										// Numéro ID du client
+    		bd[i][4] = String.valueOf(randomGene(ageMin(val), ageMax(val)));	// Age aléatoire
+    		bd[i][5] = (randomGene(0, 2) == 1) ? "F" : "M";						// Sexe de la personne			
+    		bd[i][6] = randomFood();											// Liste des achats
     	}
     	for(int i = 1; i < bd.length; i++){
-    		System.out.println("{" + bd[i][0] + "/ " + bd[i][1] + "/ " + bd[i][2] + "/ " + bd[i][3] + "/ " + bd[i][4] + "}");
+    		System.out.println("{" + bd[i][0] + "/" + bd[i][1] + "/" + bd[i][2] + "/" + bd[i][3] + "/" + bd[i][4] + "/" + bd[i][5] +  "/" + bd[i][6] + "}");
     	}
     }
 
@@ -32,7 +36,7 @@ public class TestRandom {
     * @param integer val
     * @return integer
     */
-    public static int RandomGene(int min, int max){
+    public static int randomGene(int min, int max){
 		Random rand = new Random();
 		int random;
 		random = rand.nextInt(max - min);
@@ -43,7 +47,7 @@ public class TestRandom {
 	* @param integer val
 	* @return integer
 	*/
-	public static int TrancheAge(int val){
+	public static int trancheAge(int val){
 		int retour;
 		if(val <= 85){
 			retour = 1;
@@ -60,7 +64,7 @@ public class TestRandom {
 	* @param integer val
 	* @return integer
 	*/
-	public static int AgeMin(int val){
+	public static int ageMin(int val){
 		int retour = 0;
 		switch(val){
 
@@ -86,7 +90,7 @@ public class TestRandom {
 	* @param integer val
 	* @return integer
 	*/
-	public static int AgeMax(int val){
+	public static int ageMax(int val){
 		int retour = 0;
 		switch(val){
 
@@ -108,24 +112,27 @@ public class TestRandom {
 		return retour;
 	}
 
-	/** Fonction qui choisi de manière aléatoire une série
+	/** Fonction qui choisi de manière aléatoire une série et son type
 	* @return String
 	*/
-	public static String RandomSerie(){
+	public static String randomSerie(){
 		String retour;
-		int val = RandomGene(0, 3);
+		String[] scienceFiction = {"Stargate", "Docteur Who", "The Walking Dead", "Black Mirror"};
+		String[] fantasy = {"Game of thrones", "Outlander", "Once upon a time", "Supernatural", "Lucifer"};
+		String[] thriller = {"Breaking bad", "La casa de papel", "Gotham", "Prison Break"};
+		int val = randomGene(0, 3);
 		switch(val){
 
 			case 1:
-			retour = "Stargate";
+			retour = scienceFiction[randomGene(0, scienceFiction.length - 1)] + "," + "ScienceFiction";
 			break;
 
 			case 2:
-			retour = "Game of thrones";
+			retour = fantasy[randomGene(0, fantasy.length - 1)] + "," + "Fantasy";
 			break;
 
 			case 3:
-			retour = "Breaking bad";
+			retour = thriller[randomGene(0, thriller.length - 1)] + "," + "Thriller";
 			break;
 
 			default:
@@ -134,23 +141,52 @@ public class TestRandom {
 		return retour;
 	}
 
-	public static String RandomFood(){
+	/** Fonction qui choisi de manière aléatoire une durée de la série
+	* @return String
+	*/
+	public static String randomDuree(){
+		String retour;
+		int val = randomGene(0, 3);
+		switch(val){
+
+			case 1:
+			retour = "Short";
+			break;
+
+			case 2:
+			retour = "Medium";
+			break;
+
+			case 3:
+			retour = "Long";
+			break;
+
+			default:
+			retour = "Erreur";
+		}
+		return retour;
+	}
+
+	/** Fonction qui fait le choix aléatoire du nombre d'élements que le client achette (entre 1 et 5 compris). Puis il choisi ce qu'il prend de manière unique (2 même food ne peuvent être présent 2 fois dans la même commande)
+	* @return String
+	*/
+	public static String randomFood(){
 		String[] food = {"Bière", "Pizza", "Steak végan", "Pommes de terres dauphines", "Eau plate", "Viande BBQ", "Religieuse au chocolat", "Frittes", "Coca-cola", "Wisky", "Poulet", "Sushi", "Brownies", "Perrier", "Donuts"};
 		String retour = "";
 		int[] choix = {-1,-1,-1,-1,-1};
-		int valNbFood = RandomGene(0, 5);
+		int valNbFood = randomGene(0, 5);
 		int valFood;
 		for(int i = 0; i < valNbFood; i++){
-			valFood = RandomGene(0, food.length - 1);
+			valFood = randomGene(0, food.length - 1);
 			while(valFood == choix[0] || valFood == choix[1] || valFood == choix[2] || valFood == choix[3]){
-				valFood = RandomGene(0, food.length - 1);
+				valFood =randomGene(0, food.length - 1);
 			}
 			retour = retour + food[valFood] + ",";
 			choix[i] = valFood;
 		}
-		valFood = RandomGene(0, food.length - 1);
+		valFood = randomGene(0, food.length - 1);
 			while(valFood == choix[0] || valFood == choix[1] || valFood == choix[2] || valFood == choix[3]){
-				valFood = RandomGene(0, food.length - 1);
+				valFood = randomGene(0, food.length - 1);
 			}
 		retour = retour + food[valFood];
 		return retour;
