@@ -24,45 +24,61 @@ public class Algo {
     					{"28", "F", "Stargate", "6", "Coca-cola,Pizza"},
     					{"31", "F", "Stargate", "8", "Pizza,Coca-cola,Sushi,brownies"},
     					{"54", "M", "Des racines et des ailes", "9", "Sushi,Pierrier,Donuts"}};
-    	String[] produitNom = initProduitNom(100);		// Variable ou seront écrit les combinaisons qui sont faite au moins  fois (ex: "Cocal-cola,Pizza")
-    	int[] produitNombre = initProduitNombre(100);	// Varaible qui dira combien de fois la combinaisons produitNom[x] est fait pour produitNombre[x]
-    	boolean[] bit = {false, false, false, false, false, false, false, false, false, false}; // Variable qui sert d'incrémentation binaire
-    	boolean existe; //Permet de montrer si le String est existant dans produitNom ou pas
+        /* produitNom: Variable ou seront écrit les combinaisons qui sont faite 
+        au moins 1 fois (ex: "Cocal-cola,Pizza")*/
+    	String[] produitNom = initProduitNom(100);
+        /* Varaible qui dira combien de fois la combinaisons produitNom[x]
+        est faite pour produitNombre[x]*/
+    	int[] produitNombre = initProduitNombre(100);
+        // Variable qui sert d'incrémentation binaire
+    	boolean[] bit = {false, false, false, false, false, false, false, false, false, false};
+        // Permet de montrer si le String est existant dans produitNom ou pas
+    	boolean existe;    
+        // Simple compteur 
     	int caseAuDessus = 0;
+        // Variable qui stock le nombre d'occurence max que choisi l'utilisateur
     	int choixOccurence = nbOccurence();
 		///////////////////////////////////////////////////////////////////
         //SECTION 0 - Fin 												 //
         ///////////////////////////////////////////////////////////////////
 
+        // Pour chaque tableau présent dans db
     	for(int h = 0;  h < db.length; h++){
-    		String strDeDb = produitDeLaTuple(h, db);
-    		int longStrDeDb = (int)strDeDb.split(",").length;
-    	
-	        boolean[] bit2 = bit;
-	    	for (int j = 0; j < (int)Math.pow(2,longStrDeDb) ; j++) {
-	    		bit2 = incrementationBinaire(bit2, longStrDeDb - 1, j);
-		    	if(deuxBitEtatTrue(bit2) > 0){
-		    		existe = false;
-		    		for(int k = 0; k < produitNombre.length; k++){
-		    			if(produitNom[k].equals(ordreAlphabetique(uneDesPossibilite(bit2, strDeDb)))){
-		    				existe = true;
-		    				produitNombre[k]++;
-		    			}
-		    		}
-		    		if(existe == false){
-		    			produitNom[caseAuDessus] = ordreAlphabetique(uneDesPossibilite(bit2, strDeDb));
-		    			produitNombre[caseAuDessus] = 1;
-		    			caseAuDessus++;
-		    		}
-		    		existe = false;
-		    	}
-		    }
-		}
-		for(int i = 0; i < produitNombre.length; i++){
-		    	if(produitNombre[i] != 0 && produitNombre[i] >= choixOccurence && !produitNom.equals(",")){
-		    		System.out.println("Pour la chaine : " + produitNom[i] + " il y a " + produitNombre[i] + " occurences");
-		    	}
-		    }
+            // Met sous format de string lisible par le code, la commande du client
+            String strDeDb = produitDeLaTuple(h, db);
+            // On compte le nombre de prodduit différents
+            int longStrDeDb = (int)strDeDb.split(",").length;
+            // On copie une variable
+            boolean[] bit2 = bit;
+            for (int j = 0; j < (int)Math.pow(2,longStrDeDb) ; j++) {
+                bit2 = incrementationBinaire(bit2, longStrDeDb - 1, j);
+                // Vérifie chaque occurences possibles
+                if(deuxBitEtatTrue(bit2) > 0){
+                    // Si état possible, créer l'occurence et la trier par ordre alphabétique
+                    existe = false;
+                    for(int k = 0; k < produitNombre.length; k++){
+                        // Si le l'occurence existe, incrémenter les données correspondantes dans ProduitNombre
+                        if(produitNom[k].equals(ordreAlphabetique(uneDesPossibilite(bit2, strDeDb)))){
+                            existe = true;
+                            produitNombre[k]++;
+                        }
+                    }
+                    // Si l'occurence n'existe pas, la créer
+                    if(existe == false){
+                        produitNom[caseAuDessus] = ordreAlphabetique(uneDesPossibilite(bit2, strDeDb));
+                        produitNombre[caseAuDessus] = 1;
+                        caseAuDessus++;
+                    }
+                    existe = false;
+                }
+            }
+        }
+        // Affichage des occurence en fonction du nombre d'occurence choisies
+        for(int i = 0; i < produitNombre.length; i++){
+            if(produitNombre[i] != 0 && produitNombre[i] >= choixOccurence && !produitNom.equals(",")){
+                System.out.println("Pour la chaine : " + produitNom[i] + " il y a " + produitNombre[i] + " occurences");
+            }
+        }
     }
 	/** Cette fonction retourne un nombre entier stictement positif choisi par l'utilisateur qui symbolise le nombre d'occurence minimal qu'il veux afficher
 	* @return integer 
@@ -113,12 +129,16 @@ public class Algo {
     /** Retourne la valeur binaire au dessus
     * @param boolean[] bit Valeur actuelle de la variable bit[]
     * @param integer nbPuissance Le nombre de produits dans le String choisi
+    * @param integer numero La valeur décimale que l'on veut
     * @return boolean[] nouvelle variable bit[] incrémentée de 1
-    * ETAT = A vérifier, il faudrait qu'il commence à all false tout le temps. Problème de l'affichage d'une ligne ",", résolu à l'affichage mais pas très bien.
+    * ETAT = A vérifier, il faudrait qu'il commence à all false tout le temps. Problème de l'affichage d'une ligne ",", résolu à l'affichage mais pas très grave.
     */
     public static boolean[] incrementationBinaire(boolean[] bit, int nbPuissance, int numero){
+        // Copie de bit pour pouvoir travailler dessus
     	boolean[] bit2 = bit;
+        // Pour chaque chiffre binaire
     	for(int i = nbPuissance; i >= 0 ; i--){
+            // Une formule assez compliqué qui montre les valeur binaire à inverser pour incrémenter notre tableau binaire de 1 valeur décimale
     		if(numero % (int)Math.pow(2,i) == 0 && numero != 0){
     			bit2[nbPuissance - i] = !bit2[nbPuissance - i];
     		}
@@ -126,7 +146,7 @@ public class Algo {
 		return bit2;
     }
 
-    /** Permet de savoir s'il y a uen combinaison possible
+    /** Permet de savoir s'il y a une combinaison possible
     *@param boolean[] bit True si c'est une possibilité
     *@return integer compteur nombre de produits sélectionnés
     * ETAT = Vérifiée
